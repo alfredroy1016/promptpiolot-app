@@ -9,32 +9,46 @@ const Prompt = require('../../models/Prompt');
 router.get('/buy/:productId', async (req, res) => {
   const productId = req.params.productId;
 
-  const request = new checkoutNodeJssdk.orders.OrdersCreateRequest();
-  request.prefer('return=representation');
-  request.requestBody({
-    intent: 'CAPTURE',
-    purchase_units: [{
-      amount: {
-        currency_code: 'USD',
-        value: '10.00'
-      },
-      custom_id: productId
-    }],
-    application_context: {
-      return_url: `http://localhost:3000/payment-success?productId=${productId}`,
-      cancel_url: 'http://localhost:3000/payment-cancel'
-    }
-  });
-
   try {
+    // 🔍 Fetch prompt from DB
+    const prompt = await Prompt.findById(productId);
+    if (!prompt) {
+      return res.status(404).send('Prompt not found');
+    }
+
+    // 💵 Check for free prompts (optional)
+    if (!prompt.price || prompt.price <= 0) {
+      return res.redirect(`/user/download-page?file=${encodeURIComponent(prompt.file)}`);
+    }
+
+    // 🛒 Create PayPal order with dynamic price
+    const request = new checkoutNodeJssdk.orders.OrdersCreateRequest();
+    request.prefer('return=representation');
+    request.requestBody({
+      intent: 'CAPTURE',
+      purchase_units: [{
+        amount: {
+          currency_code: 'USD',
+          value: prompt.price.toFixed(2) // ✅ Use prompt.price
+        },
+        custom_id: productId
+      }],
+      application_context: {
+        return_url: `http://localhost:3000/payment-success?productId=${productId}`,
+       cancel_url: `http://localhost:3000/payment-cancel`
+
+      }
+    });
+
     const order = await client().execute(request);
     const approvalUrl = order.result.links.find(link => link.rel === 'approve').href;
     res.redirect(approvalUrl);
   } catch (err) {
-    console.error(err);
-    res.send('Error creating order');
+    console.error('❌ Error creating order:', err);
+    res.status(500).send('Error creating order');
   }
 });
+
 
 router.get('/payment-success', async (req, res) => {
   const { token, PayerID, productId } = req.query;
