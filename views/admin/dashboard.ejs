@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - PromptPilot</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #1a0b3d 0%, #2d1b69 50%, #0f051f 100%);
+            color: #fff;
+            min-height: 100vh;
+        }
+
+        .admin-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(10px);
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 30px 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .sidebar-header {
+            padding: 0 30px 30px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .admin-logo {
+            font-size: 24px;
+            font-weight: 800;
+            background: linear-gradient(45deg, #ff6b35, #00d4ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 5px;
+        }
+
+        .admin-subtitle {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .sidebar-nav {
+            padding: 30px 0;
+        }
+
+        .nav-section {
+            margin-bottom: 30px;
+        }
+
+        .nav-section-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.5);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 0 30px 15px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 15px 30px;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border-left: 3px solid transparent;
+        }
+
+        .nav-item:hover, .nav-item.active {
+            background: rgba(0, 212, 255, 0.1);
+            color: #00d4ff;
+            border-left-color: #00d4ff;
+        }
+
+        .nav-icon {
+            margin-right: 15px;
+            font-size: 18px;
+            width: 20px;
+            text-align: center;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            padding: 30px;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .page-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(45deg, #ff6b35, #00d4ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 15px;
+        }
+
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #ff6b35, #ff8c42);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(255, 107, 53, 0.4);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-danger {
+            background: linear-gradient(45deg, #ff4757, #ff6b7d);
+            color: white;
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 25px;
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .stat-icon.prompts { background: linear-gradient(45deg, #ff6b35, #ff8c42); }
+        .stat-icon.users { background: linear-gradient(45deg, #00d4ff, #0099cc); }
+        .stat-icon.revenue { background: linear-gradient(45deg, #00b894, #00a085); }
+        .stat-icon.analytics { background: linear-gradient(45deg, #6c5ce7, #5a4fcf); }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: #fff;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 14px;
+        }
+
+        .stat-change {
+            font-size: 12px;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-weight: 600;
+        }
+
+        .stat-change.positive {
+            background: rgba(0, 184, 148, 0.2);
+            color: #00b894;
+        }
+
+        .stat-change.negative {
+            background: rgba(255, 71, 87, 0.2);
+            color: #ff4757;
+        }
+
+        /* Content Sections */
+        .content-section {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        /* Tables */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .data-table th {
+            background: rgba(0, 212, 255, 0.1);
+            color: #00d4ff;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .data-table td {
+            padding: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .data-table tr:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-active { background: rgba(0, 184, 148, 0.2); color: #00b894; }
+        .status-pending { background: rgba(253, 203, 110, 0.2); color: #fdcb6e; }
+        .status-inactive { background: rgba(255, 71, 87, 0.2); color: #ff4757; }
+
+        /* Forms */
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #00d4ff;
+            font-size: 14px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #00d4ff;
+            box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.1);
+        }
+
+        .form-control::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        textarea.form-control {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        /* Charts Container */
+        .chart-container {
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 12px;
+            padding: 20px;
+            height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        /* Page Content (Hidden by default) */
+        .page-content {
+            display: none;
+        }
+
+        .page-content.active {
+            display: block;
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, #2d1b69, #1a0b3d);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 800px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .sidebar {
+                width: 250px;
+            }
+            
+            .main-content {
+                margin-left: 250px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+            
+            .sidebar.open {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+                padding: 20px;
+            }
+            
+            .page-title {
+                font-size: 2rem;
+            }
+            
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="admin-logo">PROMPTPILOT</div>
+                <div class="admin-subtitle">Admin Dashboard</div>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <div class="nav-section-title">Main</div>
+                    <a class="nav-item active" data-page="dashboard">
+                        <span class="nav-icon">📊</span>
+                        Dashboard
+                    </a>
+                    <a class="nav-item" data-page="analytics">
+                        <span class="nav-icon">📈</span>
+                        Analytics
+                    </a>
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">Content</div>
+                    <a class="nav-item" data-page="prompts">
+                        <span class="nav-icon">💡</span>
+                        Manage Prompts
+                    </a>
+                    <a class="nav-item" data-page="categories">
+                        <span class="nav-icon">📂</span>
+                        Categories
+                    </a>
+                    <a class="nav-item" data-page="bulk-import">
+                        <span class="nav-icon">📥</span>
+                        Bulk Import
+                    </a>
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">Users</div>
+                    <a class="nav-item" data-page="users">
+                        <span class="nav-icon">👥</span>
+                        User Management
+                    </a>
+                    <a class="nav-item" data-page="subscriptions">
+                        <span class="nav-icon">💳</span>
+                        Subscriptions
+                    </a>
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">System</div>
+                    <a class="nav-item" data-page="settings">
+                        <span class="nav-icon">⚙️</span>
+                        Settings
+                    </a>
+                    <a class="nav-item" data-page="api">
+                        <span class="nav-icon">🔌</span>
+                        API Management
+                    </a>
+                    <a class="nav-item" data-page="backup">
+                        <span class="nav-icon">💾</span>
+                        Backup & Export
+                    </a>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Dashboard Page -->
+            <div class="page-content active" id="dashboard">
+                <div class="page-header">
+                    <h1 class="page-title">Dashboard</h1>
+                    <div class="header-actions">
+                        <button class="btn btn-secondary">📊 Generate Report</button>
+                        <a href="/admin/prompts" class="btn btn-primary">➕ Add New Prompt</a>
+
+                    </div>
+                </div>
+
+                <!-- Stats Cards -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-icon prompts">💡</div>
+                            <div class="stat-change positive">+12%</div>
+                        </div>
+                        <div class="stat-value">1,427</div>
+                        <div class="stat-label">Total Prompts</div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-icon users">👥</div>
+                            <div class="stat-change positive">+8%</div>
+                        </div>
+                        <div class="stat-value">12,847</div>
+                        <div class="stat-label">Active Users</div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-icon revenue">💰</div>
+                            <div class="stat-change positive">+23%</div>
+                        </div>
+                        <div class="stat-value">$47,892</div>
+                        <div class="stat-label">Monthly Revenue</div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-icon analytics">📈</div>
+                            <div class="stat-change negative">-2%</div>
+                        </div>
+                        <div class="stat-value">2,847,392</div>
+                        <div class="stat-label">Total Prompt Uses</div>
+                    </div>
+                </div>
+
+                <!-- Recent Activity -->
+                <div class="content-section">
+                    <div class="section-header">
+                        <h2 class="section-title">Recent Activity</h2>
+                        <button class="btn btn-secondary btn-sm">View All</button>
+                    </div>
+                    
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>User</th>
+                                <th>Action</th>
+                                <th>Prompt</th>
+                                <th>Time</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>john.doe@email.com</td>
+                                <td>Used prompt</td>
+                                <td>Blog Post Generator</td>
+                                <td>2 minutes ago</td>
+                                <td><span class="status-badge status-active">Success</span></td>
+                            </tr>
+                            <tr>
+                                <td>jane.smith@email.com</td>
+                                <td>Subscribed</td>
+                                <td>Pro Plan</td>
+                                <td>15 minutes ago</td>
+                                <td><span class="status-badge status-active">Active</span></td>
+                            </tr>
+                            <tr>
+                                <td>admin@promptpilot.com</td>
+                                <td>Added prompt</td>
+                                <td>Email Marketing Sequence</td>
+                                <td>1 hour ago</td>
+                                <td><span class="status-badge status-pending">Review</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Popular Prompts -->
+                <div class="content-section">
+                    <div class="section-header">
+                        <h2 class="section-title">Top Performing Prompts</h2>
+                    </div>
+                    <div class="chart-container">
+                        <p>📊 Chart visualization would be integrated here (Chart.js, D3.js, etc.)</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Prompts Management Page -->
+            <div class="page-content" id="prompts">
+                <div class="page-header">
+                    <h1 class="page-title">Manage Prompts</h1>
+                    <div class="header-actions">
+                        <button class="btn btn-secondary">📤 Export</button>
+                        <button class="btn btn-primary" onclick="openModal('addPromptModal')">➕ Add New Prompt</button>
+                    </div>
+                </div>
+
+                <!-- Filters -->
+                <div class="content-section">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <input type="text" class="form-control" placeholder="Search prompts...">
+                        </div>
+                        <div class="form-group">
+                            <select class="form-control">
+                                <option>All Categories</option>
+                                <option>Blogging</option>
+                                <option>Copywriting</option>
+                                <option>Marketing</option>
+                                <option>E-commerce</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <select class="form-control">
+                                <option>All Status</option>
+                                <option>Active</option>
+                                <option>Pending</option>
+                                <option>Inactive</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Prompts Table -->
+                <div class="content-section">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Category</th>
+                                <th>Uses</th>
+                                <th>Rating</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Blog Post Content Generator</td>
+                                <td>Blogging</td>
+                                <td>2,847</td>
+                                <td>⭐ 4.8</td>
+                                <td><span class="status-badge status-active">Active</span></td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="btn btn-secondary btn-sm">✏️ Edit</button>
+                                        <button class="btn btn-danger btn-sm">🗑️ Delete</button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Sales Email Sequence</td>
+                                <td>Copywriting</td>
+                                <td>1,923</td>
+                                <td>⭐ 4.9</td>
+                                <td><span class="status-badge status-active">Active</span></td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="btn btn-secondary btn-sm">✏️ Edit</button>
+                                        <button class="btn btn-danger btn-sm">🗑️ Delete</button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Users Management Page -->
+            <div class="page-content" id="users">
+                <div class="page-header">
+                    <h1 class="page-title">User Management</h1>
+                    <div class="header-actions">
+                        <button class="btn btn-secondary">📧 Send Newsletter</button>
+                        <button class="btn btn-primary">➕ Add User</button>
+                    </div>
+                </div>
+
+                <div class="content-section">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Email</th>
+                                <th>Plan</th>
+                                <th>Joined</th>
+                                <th>Usage</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>john.doe@email.com</td>
+                                <td>Pro</td>
+                                <td>Jan 15, 2025</td>
+                                <td>847 prompts</td>
+                                <td><span class="status-badge status-active">Active</span></td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="btn btn-secondary btn-sm">👁️ View</button>
+                                        <button class="btn btn-danger btn-sm">🚫 Suspend</button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Analytics Page -->
+            <div class="page-content" id="analytics">
+                <div class="page-header">
+                    <h1 class="page-title">Analytics</h1>
+                    <div class="header-actions">
+                        <button class="btn btn-secondary">📊 Export Report</button>
+                    </div>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-icon analytics">📈</div>
+                        </div>
+                        <div class="stat-value">847,392</div>
+                        <div class="stat-label">Total Page Views</div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div class="stat-icon users">👥</div>
+                        </div>
+                        <div class="stat-value">23,847</div>
+                        <div class="stat-label">Unique Visitors</div>
+                    </div>
+                </div>
+
+                <div class="content-section">
+                    <div class="section-header">
+                        <h2 class="section-title">Usage Trends</h2>
+                    </div>
+                    <div class="chart-container">
+                        <p>📊 Advanced analytics charts would be integrated here</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Settings Page -->
+            <div class="page-content" id="settings">
+                <div class="page-header">
+                    <h1 class="page-title">Settings</h1>
+                </div>
+
+                <div class="content-section">
+                    <div class="section-header">
+                        <h2 class="section-title">General Settings</h2>
+                    </div>
+                    
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">Site Name</label>
+                            <input type="text" class="form-control" value="PromptPilot">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Admin Email</label>
+                            <input type="email" class="form-control" value="admin@promptpilot.com">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Max Prompts per User</label>
+                            <input type="number" class="form-control" value="100">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">API Rate Limit</label>
+                            <input type="number" class="form-control" value="1000">
+                        </div>
+                    </div>
+                    
+                    <button class="btn btn-primary">💾 Save Settings</button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Add Prompt Modal -->
+    <div class="modal" id="addPromptModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Add New Prompt</h2>
+                <button class="close-btn" onclick="closeModal('addPromptModal')">&times;</button>
+            </div>
+            
+            <form>
+                <div class="form-group">
+                    <label class="form-label">Prompt Title</label>
+                    <input type="text" class="form-control" placeholder="Enter prompt title">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Category</label>
+                    <select class="form-control">
+                        <option>Blogging</option>
+                        <option>Copywriting</option>
+                        <option>Marketing</option>
+                        <option>E-commerce</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Description</label>
+                    <textarea class="form-control" placeholder="Brief description of the prompt"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Prompt Content</label>
+                    <textarea class="form-control" rows="8" placeholder="Enter the full prompt content here"></textarea>
+                </div>
+                
+                <div class="action-buttons">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('addPromptModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">💾 Save Prompt</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Navigation functionality
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', function() {
+                // Remove active class from all nav items and pages
+                document.querySelector

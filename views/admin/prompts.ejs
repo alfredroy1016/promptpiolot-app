@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Prompts - Admin Panel</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #1a0b3d 0%, #2d1b69 50%, #0f051f 100%);
+            color: #fff;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        header {
+            padding: 20px 0;
+            background: rgba(26, 11, 61, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 800;
+            background: linear-gradient(45deg, #ff6b35, #00d4ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .admin-badge {
+            background: linear-gradient(45deg, #ff6b35, #00d4ff);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 30px;
+        }
+
+        .nav-links a {
+            color: #fff;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links a:hover, .nav-links a.active {
+            color: #00d4ff;
+        }
+
+        /* Main Content */
+        .main-content {
+            padding: 40px 0;
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .page-title {
+            font-size: 3rem;
+            font-weight: 900;
+            background: linear-gradient(45deg, #ff6b35, #00d4ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 15px;
+        }
+
+        .page-subtitle {
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.8);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Upload Form Section */
+        .upload-section {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 40px;
+            backdrop-filter: blur(10px);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: #00d4ff;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .form-input, .form-select, .form-textarea {
+            padding: 15px 20px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            outline: none;
+            border-color: #00d4ff;
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+        }
+
+        .form-input::placeholder, .form-textarea::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .form-textarea {
+            min-height: 150px;
+            resize: vertical;
+            font-family: 'Monaco', 'Menlo', monospace;
+            line-height: 1.5;
+        }
+
+        .form-select {
+            cursor: pointer;
+        }
+
+        .form-select option {
+            background: #2d1b69;
+            color: #fff;
+        }
+
+        /* File Upload */
+        .file-upload-area {
+            border: 2px dashed rgba(255, 255, 255, 0.3);
+            border-radius: 12px;
+            padding: 40px 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .file-upload-area:hover {
+            border-color: #00d4ff;
+            background: rgba(0, 212, 255, 0.05);
+        }
+
+        .file-upload-area.dragover {
+            border-color: #00d4ff;
+            background: rgba(0, 212, 255, 0.1);
+            transform: scale(1.02);
+        }
+
+        .file-upload-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .file-upload-text {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .file-upload-subtext {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 14px;
+        }
+
+        .file-input {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .uploaded-file {
+            background: rgba(0, 212, 255, 0.1);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .file-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .remove-file {
+            background: none;
+            border: none;
+            color: #ff6b35;
+            cursor: pointer;
+            font-size: 18px;
+            padding: 5px;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+
+        .remove-file:hover {
+            background: rgba(255, 107, 53, 0.2);
+        }
+
+        /* Tags Input */
+        .tags-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding: 12px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            min-height: 50px;
+            align-items: center;
+        }
+
+        .tag {
+            background: #00d4ff;
+            color: #1a0b3d;
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .tag-remove {
+            background: none;
+            border: none;
+            color: #1a0b3d;
+            cursor: pointer;
+            font-size: 14px;
+            padding: 0;
+        }
+
+        .tag-input {
+            border: none;
+            background: transparent;
+            color: #fff;
+            font-size: 14px;
+            outline: none;
+            flex: 1;
+            min-width: 120px;
+        }
+
+        .tag-input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        /* Buttons */
+        .button-group {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 40px;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #00d4ff, #0099cc);
+            color: #1a0b3d;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 212, 255, 0.4);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        /* Success/Error Messages */
+        .message {
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        .message.success {
+            background: rgba(0, 184, 148, 0.2);
+            border: 1px solid rgba(0, 184, 148, 0.3);
+            color: #00b894;
+        }
+
+        .message.error {
+            background: rgba(255, 107, 53, 0.2);
+            border: 1px solid rgba(255, 107, 53, 0.3);
+            color: #ff6b35;
+        }
+
+        /* Preview Section */
+        .preview-section {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 30px;
+            margin-top: 30px;
+            backdrop-filter: blur(10px);
+        }
+
+        .preview-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #00d4ff;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .prompt-preview-card {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 25px;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .preview-category {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            background: #00d4ff;
+            color: #1a0b3d;
+            margin-bottom: 15px;
+        }
+
+        .preview-prompt-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 10px;
+        }
+
+        .preview-description {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 14px;
+            line-height: 1.5;
+            margin-bottom: 15px;
+        }
+
+        .preview-content {
+            background: rgba(0, 0, 0, 0.3);
+            border-left: 3px solid #00d4ff;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.9);
+            line-height: 1.4;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .page-title {
+                font-size: 2rem;
+            }
+            
+            .button-group {
+                flex-direction: column;
+            }
+            
+            .upload-section {
+                padding: 20px;
+            }
+            
+            .nav-links {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="container">
+            <div class="logo">PROMPTPILOT</div>
+            <div class="admin-badge">Admin Panel</div>
+            <ul class="nav-links">
+                <li><a href="/admin/dashboard">Dashboard</a></li>
+                <li><a href="/admin/prompts" class="active">Upload Prompts</a></li>
+                <li><a href="/admin/users">Users</a></li>
+                <li><a href="/admin/analytics">Analytics</a></li>
+                <li><a href="/">Back to Site</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="main-content">
+        <div class="container">
+            <div class="page-header">
+                <h1 class="page-title">Upload New Prompt</h1>
+                <p class="page-subtitle">Add high-quality prompts to the PromptPilot collection</p>
+            </div>
+
+            <form class="upload-section" id="uploadForm" enctype="multipart/form-data" action="/admin/prompts/upload-prompt" method="POST">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label">Prompt Title</label>
+                        <input type="text" class="form-input" name="title" placeholder="Enter a compelling title..." required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Category</label>
+                        <select class="form-select" name="category" required>
+                            <option value="">Select Category</option>
+                            <option value="blogging">Blogging</option>
+                            <option value="copywriting">Copywriting</option>
+                            <option value="marketing">Marketing</option>
+                            <option value="ecommerce">E-commerce</option>
+                            <option value="business">Business</option>
+                            <option value="creative">Creative</option>
+                            <option value="analysis">Analysis</option>
+                            <option value="customer-service">Customer Service</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Difficulty Level</label>
+                        <select class="form-select" name="difficulty" required>
+                            <option value="">Select Difficulty</option>
+                            <option value="beginner">Beginner</option>
+                            <option value="intermediate">Intermediate</option>
+                            <option value="advanced">Advanced</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Use Case</label>
+                        <select class="form-select" name="useCase" required>
+                            <option value="">Select Use Case</option>
+                            <option value="content-creation">Content Creation</option>
+                            <option value="sales">Sales</option>
+                            <option value="customer-service">Customer Service</option>
+                            <option value="analysis">Analysis</option>
+                            <option value="automation">Automation</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label class="form-label">Description</label>
+                        <textarea class="form-textarea" name="description" placeholder="Describe what this prompt does and how it helps users..." rows="3" required></textarea>
+                    </div>
+
+
+                    <div class="form-group full-width">
+                    <label class="form-label">Price</label>
+                     <input type="number" name="price" placeholder="Enter the price for this prompt..." class="form-input" step="0.01" required>
+                     </div>
+
+
+                    <div class="form-group full-width">
+                        <label class="form-label">Prompt Content</label>
+                        <textarea class="form-textarea" name="content" placeholder="Paste your complete prompt here..." rows="8" required></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Tags</label>
+                        <div class="tags-container" id="tagsContainer">
+                            <input type="text" class="tag-input" placeholder="Type and press Enter to add tags..." id="tagInput">
+                        </div>
+                        <input type="hidden" name="tags" id="tagsHidden">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Upload File (Optional)</label>
+                        <div class="file-upload-area" id="fileUploadArea">
+                            <div class="file-upload-icon">📁</div>
+                            <div class="file-upload-text">Drop files here or click to upload</div>
+                            <div class="file-upload-subtext">Supports: PDF, TXT, DOCX (Max 5MB)</div>
+                            <input type="file" class="file-input" name="file" accept=".pdf,.txt,.docx" id="fileInput">
+                        </div>
+                        <div id="uploadedFiles"></div>
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button type="button" class="btn btn-secondary" onclick="previewPrompt()">
+                        👁️ Preview
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        ⬆️ Upload Prompt
+                    </button>
+                </div>
+            </form>
+
+            <div class="preview-section" id="previewSection" style="display: none;">
+                <h2 class="preview-title">Prompt Preview</h2>
+                <div class="prompt-preview-card" id="previewCard">
+                    <!-- Preview content will be inserted here -->
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Tags functionality
+        const tagInput = document.getElementById('tagInput');
+        const tagsContainer = document.getElementById('tagsContainer');
+        const tagsHidden = document.getElementById('tagsHidden');
+        let tags = [];
+
+        tagInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                addTag(this.value.trim());
+                this.value = '';
+            }
+        });
+
+        function addTag(tagText) {
+            if (tagText && !tags.includes(tagText)) {
+                tags.push(tagText);
+                renderTags();
+                updateHiddenInput();
+            }
+        }
+
+        function removeTag(tagText) {
+            tags = tags.filter(tag => tag !== tagText);
+            renderTags();
+            updateHiddenInput();
+        }
+
+        function renderTags() {
+            const existingTags = tagsContainer.querySelectorAll('.tag');
+            existingTags.forEach(tag => tag.remove());
+
+            tags.forEach(tag => {
+                const tagElement = document.createElement('div');
+                tagElement.className = 'tag';
+                tagElement.innerHTML = `
+                    ${tag}
+                    <button type="button" class="tag-remove" onclick="removeTag('${tag}')">×</button>
+                `;
+                tagsContainer.insertBefore(tagElement, tagInput);
+            });
+        }
+
+        function updateHiddenInput() {
+            tagsHidden.value = JSON.stringify(tags);
+        }
+
+        // File upload functionality
+        const fileUploadArea = document.getElementById('fileUploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const uploadedFiles = document.getElementById('uploadedFiles');
+
+        fileUploadArea.addEventListener('click', () => fileInput.click());
+
+        fileUploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            fileUploadArea.classList.add('dragover');
+        });
+
+        fileUploadArea.addEventListener('dragleave', () => {
+            fileUploadArea.classList.remove('dragover');
+        });
+
+        fileUploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            fileUploadArea.classList.remove('dragover');
+            handleFiles(e.dataTransfer.files);
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            handleFiles(e.target.files);
+        });
+
+        function handleFiles(files) {
+            if (files.length > 0) {
+                const file = files[0];
+                displayUploadedFile(file);
+            }
+        }
+
+        function displayUploadedFile(file) {
+            uploadedFiles.innerHTML = `
+                <div class="uploaded-file">
+                    <div class="file-info">
+                        <span>📄</span>
+                        <span>${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)</span>
+                    </div>
+                    <button type="button" class="remove-file" onclick="removeFile()">×</button>
+                </div>
+            `;
+        }
+
+        function removeFile() {
+            uploadedFiles.innerHTML = '';
+            fileInput.value = '';
+        }
+
+        // Form validation
+        document.getElementById('uploadForm').addEventListener('submit', function(e) {
+            const title = this.title.value.trim();
+            const category = this.category.value;
+            const content = this.content.value.trim();
+
+            if (!title || !category || !content) {
+                e.preventDefault();
+                alert('Please fill in all required fields');
+                return;
+            }
+
+            if (content.length < 50) {
+                e.preventDefault();
+                alert('Prompt content should be at least 50 characters long');
+                return;
+            }
+        });
+
+        // Preview functionality
+        function previewPrompt() {
+            const form = document.getElementById('uploadForm');
+            const title = form.title.value.trim();
+            const category = form.category.value;
+            const description = form.description.value.trim();
+            const content = form.content.value.trim();
+
+            if (!title || !category || !description || !content) {
+                alert('Please fill in the basic fields to preview');
+                return;
+            }
+
+            const previewCard = document.getElementById('previewCard');
+            const previewSection = document.getElementById('previewSection');
+
+            previewCard.innerHTML = `
+                <span class="preview-category">${category}</span>
+                <h3 class="preview-prompt-title">${title}</h3>
+                <p class="preview-description">${description}</p>
+                <div class="preview-content">${content.length > 200 ? content.substring(0, 200) + '...' : content}</div>
+            `;
+
+            previewSection.style.display = 'block';
+            previewSection.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Auto-save functionality (optional)
+        let autoSaveTimeout;
+        const formInputs = document.querySelectorAll('input, textarea, select');
+
+        formInputs.forEach(input => {
+            input.addEventListener('input', () => {
+                clearTimeout(autoSaveTimeout);
+                autoSaveTimeout = setTimeout(() => {
+                    // Auto-save to localStorage
+                    const formData = new FormData(document.getElementById('uploadForm'));
+                    const data = Object.fromEntries(formData);
+                    localStorage.setItem('promptDraft', JSON.stringify(data));
+                }, 1000);
+            });
+        });
+
+        // Load draft on page load
+        window.addEventListener('load', () => {
+            const draft = localStorage.getItem('promptDraft');
+            if (draft) {
+                const data = JSON.parse(draft);
+                Object.keys(data).forEach(key => {
+                    const input = document.querySelector(`[name="${key}"]`);
+                    if (input && input.type !== 'file') {
+                        input.value = data[key];
+                    }
+                });
+            }
+        });
+
+        // Clear draft after successful submission
+        document.getElementById('uploadForm').addEventListener('submit', () => {
+            localStorage.removeItem('promptDraft');
+        });
+    </script>
+</body>
+</html>

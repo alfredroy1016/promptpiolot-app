@@ -1,0 +1,87 @@
+<div class="upload-section">
+  <form method='POST' class="form-grid">
+    <div class="form-group full-width">
+      <label class="form-label" for="email">Email</label>
+      <input id="email" name="email" placeholder="Enter your email" class="form-input" />
+    </div>
+
+    <div class="form-group full-width">
+      <label class="form-label" for="password">Password</label>
+      <input id="password" name="password" type="password" placeholder="Enter your password" class="form-input" />
+    </div>
+
+    <div class="form-group full-width button-group">
+      <button type="submit" class="btn btn-primary">Login</button>
+    </div>
+  </form>
+</div>
+<style>
+    .upload-section {
+  background: linear-gradient(135deg, #1e1e2f, #252535);
+  border-radius: 12px;
+  padding: 30px;
+  width: 400px;
+  margin: 60px auto;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+}
+
+.form-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-label {
+  color: #f0f0f0;
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+
+.form-input {
+  background: #2c2c3b;
+  border: 1px solid #444;
+  border-radius: 8px;
+  padding: 12px 16px;
+  color: #f0f0f0;
+  font-size: 14px;
+  outline: none;
+  transition: border 0.3s ease, box-shadow 0.3s ease;
+}
+
+.form-input:focus {
+  border-color: #00c6ff;
+  box-shadow: 0 0 5px #00c6ff;
+}
+
+.button-group {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.btn {
+  background: linear-gradient(135deg, #00c6ff, #0072ff);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 24px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 198, 255, 0.4);
+}
+
+.btn:active {
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+</style>
