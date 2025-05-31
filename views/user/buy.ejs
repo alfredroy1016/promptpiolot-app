@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Buy Prompt</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(to right, #f0f4ff, #e0eaff);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .card {
+      background-color: #fff;
+      padding: 2rem 2.5rem;
+      border-radius: 1rem;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+      text-align: center;
+      width: 100%;
+      max-width: 400px;
+    }
+
+    .card h2 {
+      margin-bottom: 1rem;
+      color: #333;
+    }
+
+    .card p {
+      font-size: 1.1rem;
+      color: #555;
+      margin-bottom: 2rem;
+    }
+
+    button {
+      width: 100%;
+      padding: 0.75rem 1.5rem;
+      font-size: 1rem;
+      font-weight: 600;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-bottom: 1rem;
+      transition: background 0.3s ease;
+    }
+
+    button:first-of-type {
+      background-color: #f06543;
+      color: white;
+    }
+
+    button:first-of-type:hover {
+      background-color: #d95030;
+    }
+
+    button:last-of-type {
+      background-color: #0070ba;
+      color: white;
+    }
+
+    button:last-of-type:hover {
+      background-color: #005c9d;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="card">
+  <h2>Buy Prompt</h2>
+
+  <div class="price-info">
+    <p><strong>Price (USD):</strong> $<%= price.toFixed(2) %></p>
+    <p><strong>Converted (INR):</strong> <span id="converted-price">Fetching...</span></p>
+  </div>
+
+  <!-- Razorpay Button -->
+  <form id="razorpayForm">
+    <button type="button" onclick="startRazorpay()">💳 Pay with Razorpay</button>
+  </form>
+
+  <!-- PayPal Button -->
+  <form action="/payment/paypal/<%= promptId %>" method="GET">
+    <button type="submit">💲 Pay with PayPal</button>
+  </form>
+</div>
+
+  
+
+
+  <script>
+    async function startRazorpay() {
+     const res = await fetch('/payment/razorpay-order', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ productId: "<%= promptId %>" })
+});
+
+const data = await res.json();
+
+console.log("USD Price:", data.usdPrice);
+console.log("Converted INR Price:", data.inrConverted); // ⬅️ use this to show on UI
+
+document.getElementById("converted-price").innerText = `₹${data.inrConverted} (converted from $${data.usdPrice})`;
+
+     const options = {
+  key: '<%= razorpayKey %>',  // ✅ must be injected from backend
+  amount: data.amount,        // ✅ in paise (integer)
+  currency: data.currency,    // ✅ 'INR'
+  name: 'PromptPilot',
+  description: 'Prompt Purchase',
+  order_id: data.id,          // ✅ must match backend-generated order ID
+  handler: function (response) {
+    window.location.href = `/user/download-page?file=${encodeURIComponent("<%= promptFile %>")}`;
+  }
+};
+
+
+      const rzp = new Razorpay(options);
+      rzp.open();
+    }
+  </script>
+</body>
+</html>

@@ -871,6 +871,24 @@
                 font-size: 1.1rem;
             }
         }
+
+        .btn-price {
+  display: inline-block;
+  background-color: #1f2937; /* dark neutral base */
+  color: #fff;
+  font-weight: 700;
+  font-size: 1.1rem;
+  padding: 10px 16px;
+  border-radius: 8px;
+  text-decoration: none;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  transition: background-color 0.2s ease;
+}
+
+.btn-price:hover {
+  background-color: #111827; /* slightly darker on hover */
+}
+
     </style>
 </head>
 <body>
@@ -906,12 +924,17 @@
       <div class="prompt-preview"><%= prompt.content.substring(0, 120) %>...</div>
       <div class="prompt-info">
         <span>📅 <%= new Date(prompt.createdAt).toLocaleDateString() %></span>
-        <span>💵 $<%= prompt.price ? prompt.price.toFixed(2) : "0.00" %></span>
+      
         <span>📁 <%= prompt.file ? 'File Included' : 'Text Only' %></span>
       </div>
       <div class="prompt-actions">
-        <a href="/prompts/<%= prompt._id %>" class="btn btn-view">View Details</a>
+        
        <a href="/buy/<%= prompt._id %>" class="btn btn-buy">Buy Now</a>
+
+       <a href="/prompts/<%= prompt._id %>" class="btn btn-price">
+  💵 $<%= prompt.price ? prompt.price.toFixed(2) : "0.00" %>
+</a>
+
 
       </div>
     </div>
@@ -930,7 +953,7 @@
           </div>
           <h3>AI Business Toolkit</h3>
           <p>Boost your productivity with ready-to-use AI prompts for business.</p>
-          <div class="price">$19.99</div>
+          <div class="price">$9.99</div>
           <a href="#" class="buy-button">Buy Now</a>
         </div>
         
@@ -940,7 +963,7 @@
           </div>
           <h3>Copywriting Pack</h3>
           <p>Write captivating ad copies and sales content effortlessly.</p>
-          <div class="price">$14.99</div>
+          <div class="price">$9.99</div>
           <a href="#" class="buy-button">Buy Now</a>
         </div>
 

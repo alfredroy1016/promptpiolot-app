@@ -7,8 +7,9 @@ const connectDB = require('./config/db');
 const passport = require('passport');
 const paymentRoutes = require('./routes/user/payment');
 const downloadRoutes = require('./routes/user/download');
+const buyRoutes = require('./routes/user/buy');
 
-
+const cookieParser = require('cookie-parser');
 
 
 
@@ -36,6 +37,23 @@ app.use(session({
   saveUninitialized: false
 }));
 
+
+app.use((req, res, next) => {
+  console.log('[Session]', req.session);
+  console.log('[User]', req.user);
+  next();
+});
+
+
+app.use(cookieParser());
+app.use(session({
+  secret: process.env.SESSION_SECRET,
+  resave: false,
+  saveUninitialized: false,
+  cookie: { secure: false } // set true only with https
+}));
+
+
 // Passport middlewares
 app.use(passport.initialize());
 app.use(passport.session());
@@ -60,8 +78,14 @@ app.use('/auth', authRoutes);
 app.use('/', paymentRoutes);
 app.use('/user', downloadRoutes);
 
+app.use('/buy-now', buyRoutes); // or similar route
+
+app.use('/buy', buyRoutes);
+app.use('/payment', paymentRoutes);
+
 
 app.get('/', (req, res) => res.render('user/index'));
+console.log('🔑 Razorpay ID:', process.env.RAZORPAY_KEY_ID);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
