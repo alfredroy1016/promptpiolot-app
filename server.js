@@ -10,12 +10,7 @@ const downloadRoutes = require('./routes/user/download');
 const buyRoutes = require('./routes/user/buy');
 
 const cookieParser = require('cookie-parser');
-const fs = require('fs');
-const path = require('path');
 
-// Ensure uploads/prompts directory exists
-const uploadsDir = path.join(__dirname, 'uploads', 'prompts');
-fs.mkdirSync(uploadsDir, { recursive: true });
 
 
 
