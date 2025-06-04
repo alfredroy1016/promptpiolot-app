@@ -8,7 +8,7 @@ router.get('/google/callback',
   passport.authenticate('google', { failureRedirect: '/login' }),
   (req, res) => {
     console.log('✅ Logged in as:', req.user);
-    const redirectUrl = req.session.redirectAfterLogin || '/';
+    const redirectUrl = req.session.redirectAfterLogin || '/prompts';
     delete req.session.redirectAfterLogin;
     res.redirect(redirectUrl);
   }
