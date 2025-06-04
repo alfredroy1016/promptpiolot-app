@@ -8,11 +8,12 @@ router.get('/google/callback',
   passport.authenticate('google', { failureRedirect: '/login' }),
   (req, res) => {
     console.log('✅ Logged in as:', req.user);
-    const redirectUrl = req.session.redirectAfterLogin || '/prompts';
-    delete req.session.redirectAfterLogin;
+    const redirectUrl = req.session.returnTo || '/prompts';
+    delete req.session.returnTo;
     res.redirect(redirectUrl);
   }
 );
+
 
 router.get('/logout', (req, res, next) => {
   req.logout(function(err) {

@@ -8,6 +8,7 @@ const passport = require('passport');
 const paymentRoutes = require('./routes/user/payment');
 const downloadRoutes = require('./routes/user/download');
 const buyRoutes = require('./routes/user/buy');
+const pageRoutes = require('./routes/user/pages');
 
 const cookieParser = require('cookie-parser');
 
@@ -83,7 +84,7 @@ app.use('/buy-now', buyRoutes); // or similar route
 
 app.use('/buy', buyRoutes);
 app.use('/payment', paymentRoutes);
-
+app.use('/', pageRoutes);
 
 app.get('/', (req, res) => res.render('user/index'));
 console.log('🔑 Razorpay ID:', process.env.RAZORPAY_KEY_ID);

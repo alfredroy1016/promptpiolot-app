@@ -1,0 +1,15 @@
+<!-- views/contact.ejs -->
+<h1>Contact Us</h1>
+<p>We’re here to help! Reach out to us anytime.</p>
+<ul>
+  <li>Email: support@promptpilot.ai</li>
+  <li>Phone: +91-XXXXXXXXXX (optional)</li>
+  <li>Address: Your Office or Location (optional)</li>
+</ul>
+
+<form method="POST" action="/contact">
+  <input type="text" name="name" placeholder="Your Name" required />
+  <input type="email" name="email" placeholder="Your Email" required />
+  <textarea name="message" placeholder="Your Message"></textarea>
+  <button type="submit">Send Message</button>
+</form>
