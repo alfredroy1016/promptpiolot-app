@@ -4,16 +4,18 @@ const router = express.Router();
 const Prompt = require('../../models/Prompt');
 
 function ensureAuthenticated(req, res, next) {
-  if (req.isAuthenticated()) return next();
+  console.log('auth')
+  // if (req.isAuthenticated()) return next();
 
   req.session.returnTo = req.originalUrl;
   return res.redirect('/auth/google');
 }
 
-router.get('/buy/:id', ensureAuthenticated, async (req, res) => {
+router.get('/:id', ensureAuthenticated, async (req, res) => {
   const promptId = req.params.id;
 
   try {
+    console.log('fdsf')
     const prompt = await Prompt.findById(promptId);
     if (!prompt) return res.status(404).send('Prompt not found');
 
@@ -28,6 +30,7 @@ router.get('/buy/:id', ensureAuthenticated, async (req, res) => {
     res.status(500).send('Server error');
   }
 });
+
 
 
 
