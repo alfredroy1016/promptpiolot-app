@@ -6,15 +6,18 @@ const User = require('../models/User');
 passport.use(new GoogleStrategy({
   clientID: process.env.GOOGLE_CLIENT_ID,
   clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-  callbackURL: process.env.GOOGLE_CALLBACK_URL
+  callbackURL: process.env.LOCAL_GOOGLE_CALLBACK_URL
 }, async (accessToken, refreshToken, profile, done) => {
   try {
-    console.log(user)
+ 
     let user = await User.findOne({ googleId: profile.id });
+       console.log(user,'go')
+       if(user) {
         req.session.user = user 
+       }
 
-    if (!user) {
-      user = await User.create({
+    else{
+      let user = await User.create({
         googleId: profile.id,
         name: profile.displayName,
         email: profile.emails[0].value,
@@ -22,9 +25,9 @@ passport.use(new GoogleStrategy({
       });
     }console.log(user)
        req.session.user = user 
-    return done(user,req.session.user);
+    return done(req.session.user);
   } catch (err) {
-    consolr
+    console.log(user)
     return done(err, null);
   }
 }));
