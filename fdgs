@@ -1,0 +1,15 @@
+[33m6d32bfd[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mlead/hamnas[m[33m)[m HEAD@{0}: reset: moving to 6d32bfd
+[33m9bf94aa[m[33m ([m[1;31morigin/lead/hamnas[m[33m)[m HEAD@{1}: commit: Added [direct buy page after auth] by [hamnas]
+[33ma9d72ff[m[33m ([m[1;32mmain[m[33m)[m HEAD@{2}: checkout: moving from main to lead/hamnas
+[33ma9d72ff[m[33m ([m[1;32mmain[m[33m)[m HEAD@{3}: reset: moving to HEAD~1
+[33mb87e817[m[33m ([m[1;31morigin/main[m[33m)[m HEAD@{4}: commit: Added [direct buy page after auth] by [hamnas]
+[33ma9d72ff[m[33m ([m[1;32mmain[m[33m)[m HEAD@{5}: commit: updated auth not rediecting to paymnet
+[33ma0c21a8[m HEAD@{6}: commit: Added contact, privacy, terms pages and updated auth, buy, server.js
+[33m216a240[m HEAD@{7}: commit: navbar login #
+[33m6e43592[m HEAD@{8}: commit: after hosting
+[33m6d32bfd[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mlead/hamnas[m[33m)[m HEAD@{9}: commit: final commit
+[33m5499c16[m HEAD@{10}: commit: Updated scripts and create admin
+[33m0dac2b2[m HEAD@{11}: commit: Updated routes, passport config, and added buy.ejs
+[33m96c49c9[m HEAD@{12}: commit: Added new features: [PAYMENT CORRECTION]
+[33m9d06199[m HEAD@{13}: Branch: renamed refs/heads/master to refs/heads/main
+[33m9d06199[m HEAD@{15}: commit (initial): Initial commit of PromptPilot app

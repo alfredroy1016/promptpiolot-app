@@ -1,24 +1,34 @@
+// routes/buy.js
 const express = require('express');
 const router = express.Router();
-const passport = require('passport');
+const Prompt = require('../../models/Prompt');
 
-// Middleware to check login
 function ensureAuthenticated(req, res, next) {
-  if (req.isAuthenticated()) {
-    return next();
-
-
-  }
-  // Store the intended URL in session
+  if (req.isAuthenticated()) return next();
   req.session.redirectAfterLogin = req.originalUrl;
-  res.redirect('/auth/google');
+  return res.redirect('/auth/google');
 }
 
-// routes/user/buy.js
-router.get('/:id', ensureAuthenticated, (req, res) => {
+router.get('/:id', ensureAuthenticated, async (req, res) => {
   const promptId = req.params.id;
-  req.session.productId = promptId;  // <-- Store it here!
-  res.redirect(/checkout/${promptId});
+
+  try {
+    const prompt = await Prompt.findById(promptId);
+    if (!prompt) return res.status(404).send('Prompt not found');
+
+  res.render('user/buy', {
+  promptId,
+  promptFile: prompt.file,
+  price: prompt.price,
+  razorpayKey: process.env.RAZORPAY_KEY_ID
+});
+
+
+
+  } catch (err) {
+    console.error('❌ Error fetching prompt:', err);
+    res.status(500).send('Server error');
+  }
 });
 
 module.exports = router;

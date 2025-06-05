@@ -519,6 +519,15 @@
             opacity: 0.5;
             cursor: not-allowed;
         }
+        .action-btn.delete {
+  background: #ff4d4d;
+  color: #fff;
+}
+
+.action-btn.delete:hover {
+  background: #ff0000;
+}
+
 
         /* Modal */
         .modal {
@@ -701,41 +710,40 @@
             </ul>
         </nav>
     </header>
-
-    <main class="main-content">
-        <div class="container">
-            <div class="page-header">
-                <h1 class="page-title">Product Library</h1>
-                <p class="page-subtitle">Manage and explore your complete collection of AI-powered prompt templates</p>
-            </div>
-
-            <!-- Your filter UI here -->
-
-            <div class="products-grid">
-                <% prompts.forEach(prompt => { %>
-                    <div class="product-card">
-                        <div class="product-header">
-                            <span class="product-category category-<%= prompt.category.toLowerCase() %>"><%= prompt.category %></span>
-                        </div>
-                        <h3 class="product-title"><%= prompt.title %></h3>
-                        <p class="product-description"><%= prompt.description %></p>
-                        <div class="product-preview"><%= prompt.content.substring(0, 120) %>...</div>
-                        <div class="product-meta">
-                            <div class="product-usage">📅 <%= new Date(prompt.createdAt).toLocaleDateString() %></div>
-                            <div class="product-rating">📁 <%= prompt.file ? 'Yes' : 'No' %></div>
-                        </div>
-                        <div class="product-meta">
-                            <div>Difficulty: <%= prompt.difficulty %></div>
-                              <div class="product-meta">
-                            <div>💵 Price: ₹<%= prompt.price %></div>
-                                </div>
-                            <div>Use Case: <%= prompt.useCase %></div>
-                        </div>
-                    </div>
-                <% }); %>
-            </div>
+<main class="main-content">
+    <div class="container">
+        <div class="page-header">
+            <h1 class="page-title">Product Library</h1>
+            <p class="page-subtitle">Manage and explore your complete collection of AI-powered prompt templates</p>
         </div>
-    </main>
+
+        <div class="products-grid">
+            <% prompts.forEach(prompt => { %>
+                <div class="product-card">
+                    <div class="product-header">
+                        <span class="product-title"><%= prompt.title || 'Untitled' %></span>
+                    </div>
+
+                    <div class="product-meta">
+                        <div class="product-usage">📅 <%= new Date(prompt.createdAt).toLocaleDateString() %></div>
+                        <div class="product-rating">📁 <%= prompt.file ? 'Yes' : 'No' %></div>
+                    </div>
+
+                    <div class="product-meta">
+                        <div>Difficulty: <%= prompt.difficulty || 'N/A' %></div>
+                        <div>💵 Price: ₹<%= prompt.price || 0 %></div>
+                        <div>Use Case: <%= prompt.useCase || 'General' %></div>
+                    </div>
+
+                    <form action="/admin/prompts/delete/<%= prompt._id %>" method="POST" onsubmit="return confirm('Are you sure you want to delete this prompt?');">
+                        <button type="submit" class="action-btn delete">🗑️ Delete</button>
+                    </form>
+                </div>
+            <% }); %>
+        </div>
+    </div>
+</main>
+
 
     <script>
         // JavaScript behavior (e.g., filtering) can be added here

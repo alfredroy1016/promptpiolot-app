@@ -5,8 +5,17 @@ const router = express.Router();
 const { client } = require('../../config/paypal');
 const checkoutNodeJssdk = require('@paypal/checkout-server-sdk');
 const Prompt = require('../../models/Prompt');
+const Razorpay = require('razorpay');
+require('dotenv').config(); // ✅ Load .env FIRST
 
-router.get('/buy/:productId', async (req, res) => {
+function ensureAuthenticated(req, res, next) {
+  if (req.isAuthenticated()) return next();
+  req.session.redirectAfterLogin = req.originalUrl;
+  return res.redirect('/auth/google');
+}
+
+router.get('/paypal/:productId', ensureAuthenticated, async (req, res) => {
+
   const productId = req.params.productId;
 
   try {
@@ -79,5 +88,77 @@ router.get('/payment-success', async (req, res) => {
     res.status(500).send('Error capturing order');
   }
 });
+
+
+
+
+
+
+const razorpay = new Razorpay({
+  key_id: process.env.RAZORPAY_KEY_ID,
+  key_secret: process.env.RAZORPAY_SECRET
+});
+
+
+
+const axios = require('axios');
+
+router.post('/razorpay-order', ensureAuthenticated, async (req, res) => {
+  const { productId } = req.body;
+
+  try {
+    const prompt = await Prompt.findById(productId);
+    if (!prompt) return res.status(404).json({ error: 'Prompt not found' });
+
+    const priceInUSD = prompt.price;
+    let usdToInrRate = 83; // fallback rate
+
+    // 1. Fetch USD → INR exchange rate
+    try {
+      const exchangeRes = await axios.get('https://open.er-api.com/v6/latest/USD');
+      if (exchangeRes.data && exchangeRes.data.rates && exchangeRes.data.rates.INR) {
+        usdToInrRate = exchangeRes.data.rates.INR; // ✅ FIXED: no "const" here
+        console.log("✅ Live exchange rate fetched:", usdToInrRate);
+      } else {
+        console.warn("⚠️ INR rate missing in API response, using fallback:", usdToInrRate);
+      }
+    } catch (exErr) {
+      console.warn("⚠️ Failed to fetch exchange rate, using fallback:", usdToInrRate);
+    }
+
+    // 2. Convert to INR
+    const priceInINR = priceInUSD * usdToInrRate;
+
+    // 3. Convert INR to paise
+    const amountInPaise = Math.round(priceInINR * 100);
+
+    // 4. Create Razorpay order
+    const options = {
+      amount: amountInPaise,
+      currency: 'INR',
+      receipt: `receipt_${Date.now()}`,
+      notes: {
+        productId,
+        usdPrice: priceInUSD,
+        inrConverted: priceInINR.toFixed(2),
+      },
+    };
+
+    const order = await razorpay.orders.create(options);
+
+    // 5. Respond with order + pricing info
+    res.json({
+      ...order,
+      usdPrice: priceInUSD,
+      inrConverted: priceInINR.toFixed(2),
+    });
+
+  } catch (err) {
+    console.error('❌ Razorpay order error:', err.message || err);
+    res.status(500).json({ error: 'Failed to create Razorpay order' });
+  }
+});
+
+
 
 module.exports = router;  // <--- Add this line!
